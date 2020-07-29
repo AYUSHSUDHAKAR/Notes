@@ -2,7 +2,6 @@ package com.example.firstapp;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Service;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
@@ -16,28 +15,22 @@ import androidx.core.content.ContextCompat;
 import java.lang.ref.WeakReference;
 
 public class ScreenshotDetectionDelegate {
-    private WeakReference<Service> serviceWeakReference;
-//    private WeakReference<Activity> activityWeakReference;
+    private WeakReference<Activity> activityWeakReference;
     private ScreenshotDetectionListener listener;
 
-    public ScreenshotDetectionDelegate(Service serviceWeakReference, ScreenshotDetectionListener listener) {
-        this.serviceWeakReference = new WeakReference<>(serviceWeakReference);
+    public ScreenshotDetectionDelegate(Activity activityWeakReference, ScreenshotDetectionListener listener) {
+        this.activityWeakReference = new WeakReference<>(activityWeakReference);
         this.listener = listener;
     }
 
-//    public ScreenshotDetectionDelegate(Activity activityWeakReference, ScreenshotDetectionListener listener) {
-//        this.activityWeakReference = new WeakReference<>(activityWeakReference);
-//        this.listener = listener;
-//    }
-
     public void startScreenshotDetection() {
-        serviceWeakReference.get()
+        activityWeakReference.get()
                 .getContentResolver()
                 .registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, contentObserver);
     }
 
     public void stopScreenshotDetection() {
-        serviceWeakReference.get().getContentResolver().unregisterContentObserver(contentObserver);
+        activityWeakReference.get().getContentResolver().unregisterContentObserver(contentObserver);
     }
 
     private ContentObserver contentObserver = new ContentObserver(new Handler()) {
@@ -55,7 +48,7 @@ public class ScreenshotDetectionDelegate {
         public void onChange(boolean selfChange, Uri uri) {
             super.onChange(selfChange, uri);
             if (isReadExternalStoragePermissionGranted()) {
-                String path = getFilePathFromContentResolver(serviceWeakReference.get(), uri);
+                String path = getFilePathFromContentResolver(activityWeakReference.get(), uri);
                 if (isScreenshotPath(path)) {
                     onScreenCaptured(path);
                 }
@@ -98,7 +91,7 @@ public class ScreenshotDetectionDelegate {
     }
 
     private boolean isReadExternalStoragePermissionGranted() {
-        return ContextCompat.checkSelfPermission(serviceWeakReference.get(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        return ContextCompat.checkSelfPermission(activityWeakReference.get(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
     }
 
     public interface ScreenshotDetectionListener {
