@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "366729757911",
+    "firebase_url": "https://nice-theater-240517.firebaseio.com",
+    "project_id": "nice-theater-240517",
+    "storage_bucket": "nice-theater-240517.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:366729757911:android:e8493511752e4925141c92",
+        "android_client_info": {
+          "package_name": "com.example.firstapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "366729757911-ht9hjbq6kfv5ke8ho58t8ffpq1m10qb3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVR_ggvvgyeXmdl2yyhmTywcxiFjmPvqw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "366729757911-ht9hjbq6kfv5ke8ho58t8ffpq1m10qb3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

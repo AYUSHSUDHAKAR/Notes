@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
     private void checkReadExternalStoragePermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             requestReadExternalStoragePermission();
@@ -74,13 +75,4 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "Read external storage permission has denied", Toast.LENGTH_SHORT).show();
     }
 
-//    @Override
-//    public void onScreenCaptured(String path) {
-//        Toast.makeText(this, "Path"+path, Toast.LENGTH_LONG).show();
-//    }
-//
-//    @Override
-//    public void onScreenCapturedWithDeniedPermission() {
-//        Toast.makeText(this, "Please grant read external storage permission for screenshot detection", Toast.LENGTH_LONG).show();
-//    }
 }
