@@ -82,6 +82,7 @@ public class ScreenshotService extends Service implements ScreenshotDetectionDel
         Intent activityIntent=new Intent(this,DialogActivity.class);
         activityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        activityIntent.putExtra("sspath",path);
 
         PendingIntent pendingIntent= PendingIntent.getActivity(this,0,activityIntent,PendingIntent.FLAG_UPDATE_CURRENT);
 

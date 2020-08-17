@@ -19,27 +19,38 @@ import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 import com.theartofdev.edmodo.cropper.CropOverlayView;
 
+import java.io.File;
+
 public class DialogActivity extends AppCompatActivity {
     ImageButton btBrowse, btReset;
     ImageView imageView;
     Uri uri;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Intent intent=getIntent();
+        String sspath = intent.getStringExtra("sspath");
+        final Uri imageuri = Uri.fromFile(new File(sspath));
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dialog);
-
-        btBrowse= findViewById(R.id.bt_browse);
+        btBrowse= findViewById(R.id.bt_edit);
         btReset=findViewById(R.id.bt_reset);
         imageView=findViewById(R.id.image_view);
+        imageView.setImageURI(imageuri);
 
-        btBrowse.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        CropImage.startPickImageActivity(DialogActivity.this);
-                    }
-                }
-        );
+        btBrowse.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startCrop(imageuri);
+//                if (CropImage.isReadExternalStoragePermissionsRequired(this, imageuri)) {
+//                    uri = imageuri;
+//                    requestPermissions(new String[] {Manifest.permission.READ_EXTERNAL_STORAGE},0);
+//                }
+//                else{
+//                    startCrop(imageuri);
+//                }
+            }
+        });
         btReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -51,16 +62,6 @@ public class DialogActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == CropImage.PICK_IMAGE_CHOOSER_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            Uri imageuri = CropImage.getPickImageResultUri(this, data);
-            if (CropImage.isReadExternalStoragePermissionsRequired(this, imageuri)) {
-                uri = imageuri;
-                requestPermissions(new String[] {Manifest.permission.READ_EXTERNAL_STORAGE},0);
-            }
-            else{
-                startCrop(imageuri);
-            }
-        }
         if(requestCode==CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE){
             CropImage.ActivityResult result= CropImage.getActivityResult(data);
                 imageView.setImageURI(result.getUri());
