@@ -13,6 +13,7 @@ import android.provider.MediaStore;
 
 import androidx.core.content.ContextCompat;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 
 public class ScreenshotDetectionDelegate {
@@ -57,7 +58,11 @@ public class ScreenshotDetectionDelegate {
             if (isReadExternalStoragePermissionGranted()) {
                 String path = getFilePathFromContentResolver(serviceWeakReference.get(), uri);
                 if (isScreenshotPath(path)) {
-                    onScreenCaptured(path);
+                    try {
+                        onScreenCaptured(path);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             } else {
                 onScreenCapturedWithDeniedPermission();
@@ -65,7 +70,7 @@ public class ScreenshotDetectionDelegate {
         }
     };
 
-    private void onScreenCaptured(String path) {
+    private void onScreenCaptured(String path) throws IOException {
         if (listener != null) {
             listener.onScreenCaptured(path);
         }
@@ -102,7 +107,7 @@ public class ScreenshotDetectionDelegate {
     }
 
     public interface ScreenshotDetectionListener {
-        void onScreenCaptured(String path);
+        void onScreenCaptured(String path) throws IOException;
 
         void onScreenCapturedWithDeniedPermission();
     }
