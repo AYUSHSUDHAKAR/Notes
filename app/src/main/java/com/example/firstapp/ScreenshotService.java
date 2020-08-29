@@ -95,18 +95,19 @@ public class ScreenshotService extends Service implements ScreenshotDetectionDel
     @Override
     public void onScreenCaptured(final String path) throws IOException {
         Toast.makeText(this, "Path"+path, Toast.LENGTH_LONG).show();
+        //  file ka unique name k liye
 
-        String fileName;
-            Time t= new Time();
-            t.setToNow();
-            int timeFileMinute= t.minute;
-            int timeFileDate= t.yearDay;
-            int timeFileYear= t.year;
-
-            long timestamp=System.currentTimeMillis();
-
-            //creating file name
-            fileName= "notes-" +timeFileMinute + timeFileDate + timeFileYear + android.os.Build.SERIAL;
+//        String fileName;
+//            Time t= new Time();
+//            t.setToNow();
+//            int timeFileMinute= t.minute;
+//            int timeFileDate= t.yearDay;
+//            int timeFileYear= t.year;
+//
+//            long timestamp=System.currentTimeMillis();
+//
+//            //creating file name
+//            fileName= "notes-" +timeFileMinute + timeFileDate + timeFileYear + android.os.Build.SERIAL;
 
         final Uri imageuri = Uri.fromFile(new File(path));
         try {
@@ -114,6 +115,13 @@ public class ScreenshotService extends Service implements ScreenshotDetectionDel
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+
+
+        /*--------------------------------*/
+        //ML wala code
+        /*--------------------------------*/
+
         recognizer.process(image)
                 .addOnSuccessListener(
                         new OnSuccessListener<Text>() {
@@ -131,9 +139,8 @@ public class ScreenshotService extends Service implements ScreenshotDetectionDel
                             }
                         });
 
-        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageuri);
-
-        saveToInternalStorage(bitmap,fileName);
+//        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageuri);
+//        saveToInternalStorage(bitmap,fileName);
 
         Toast.makeText(this, "text:"+text, Toast.LENGTH_LONG).show();
 
@@ -144,8 +151,7 @@ public class ScreenshotService extends Service implements ScreenshotDetectionDel
 
         PendingIntent pendingIntent= PendingIntent.getActivity(this,0,activityIntent,PendingIntent.FLAG_UPDATE_CURRENT);
 
-//        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID_2);
-//        builder.setContentIntent(pendingIntent);
+
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID_2)
                 .setSmallIcon(R.drawable.ic_notification)
@@ -166,72 +172,27 @@ public class ScreenshotService extends Service implements ScreenshotDetectionDel
         Toast.makeText(this, "Please grant read external storage permission for screenshot detection", Toast.LENGTH_LONG).show();
     }
 
-    private void saveToInternalStorage(Bitmap bitmapImage,String name){
-        ContextWrapper cw = new ContextWrapper(getApplicationContext());
-        // path to /data/data/yourapp/app_data/imageDir
-        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
-        // Create imageDir
-        File mypath=new File(directory,name);
+//    private void saveToInternalStorage(Bitmap bitmapImage,String name){
+//        ContextWrapper cw = new ContextWrapper(getApplicationContext());
+//        // path to /data/data/yourapp/app_data/imageDir
+//        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+//        // Create imageDir
+//        File mypath=new File(directory,name);
+//
+//        FileOutputStream fos = null;
+//        try {
+//            fos = new FileOutputStream(mypath);
+//            // Use the compress method on the BitMap object to write image to the OutputStream
+//            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        } finally {
+//            try {
+//                fos.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(mypath);
-            // Use the compress method on the BitMap object to write image to the OutputStream
-            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                fos.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void uploadImage()
-    {
-        if (filePath != null) {
-
-
-//            final ProgressDialog progressDialog= new ProgressDialog(this);
-//            progressDialog.setTitle("Uploading Image......");
-//            progressDialog.show();
-
-            StorageReference ref = storageReference.child("images/"+filePath.getLastPathSegment());
-
-            ref.putFile(filePath)
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            // Get a URL to the uploaded content
-                            //Uri downloadUrl = taskSnapshot.getDownloadUrl();
-//                            progressDialog.dismiss();
-                            Toast.makeText(getApplicationContext(),"sucess",Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception exception) {
-                            // Handle unsuccessful uploads
-//                            progressDialog.dismiss();
-                            Toast.makeText(getApplicationContext(),"fail",Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>(){
-                        @Override
-                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-
-                            double processPercent =(100.00 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
-//                            progressDialog.setMessage("Percentage: "+ (int) processPercent + "%");
-
-                        }
-                    });
-
-        }
-        else
-        {
-            Toast.makeText(this,"error",Toast.LENGTH_SHORT).show();
-        }
-    }
 }
