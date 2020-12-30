@@ -17,8 +17,10 @@ import androidx.core.content.ContextCompat;
 
 
 public class MainActivity extends AppCompatActivity {
-    private Button start,stop;
+    private Button start,stop,logout;
     private static final int REQUEST_CODE_READ_EXTERNAL_STORAGE_PERMISSION = 3009;
+
+    SharedPreferenceClass sharedPreferenceClass;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
 
         start = findViewById(R.id.start);
         stop = findViewById(R.id.stop);
+        logout = findViewById(R.id.logout);
+        sharedPreferenceClass = new SharedPreferenceClass(this);
 
         start.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -42,6 +46,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 stopService(new Intent(MainActivity.this,ScreenshotService.class));
+            }
+        });
+
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sharedPreferenceClass.clear();
+                startActivity(new Intent(MainActivity.this,LoginActivity.class));
+                finish();
             }
         });
     }

@@ -23,6 +23,18 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
+import com.android.volley.ServerError;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HttpHeaderParser;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -34,9 +46,15 @@ import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.example.firstapp.App.CHANNEL_ID_1;
 import static com.example.firstapp.App.CHANNEL_ID_2;
@@ -50,12 +68,18 @@ public class ScreenshotService extends Service implements ScreenshotDetectionDel
     private ScreenshotDetectionDelegate screenshotDetectionDelegate = new ScreenshotDetectionDelegate(this, this);
     private InputImage image;
     TextRecognizer recognizer = TextRecognition.getClient();
+    private ImageView mImageView;
     private String text;
+//    Uri imageuri;
+    String token;
+    SharedPreferenceClass sharedPreferenceClass;
 
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.v("ScreenshotService","wrong");
+//        sharedPreferenceClass=new SharedPreferenceClass(this);
+//        token = sharedPreferenceClass.getValue_string("token");
         startForeground();
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
@@ -94,7 +118,7 @@ public class ScreenshotService extends Service implements ScreenshotDetectionDel
 
     @Override
     public void onScreenCaptured(final String path) throws IOException {
-        Toast.makeText(this, "Path"+path, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Path::::"+path, Toast.LENGTH_LONG).show();
         //  file ka unique name k liye
 
 //        String fileName;
@@ -109,12 +133,16 @@ public class ScreenshotService extends Service implements ScreenshotDetectionDel
 //            //creating file name
 //            fileName= "notes-" +timeFileMinute + timeFileDate + timeFileYear + android.os.Build.SERIAL;
 
+
+
         final Uri imageuri = Uri.fromFile(new File(path));
-        try {
-            image = InputImage.fromFilePath(this, imageuri);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Toast.makeText(this, "Path==="+imageuri, Toast.LENGTH_LONG).show();
+
+//        try {
+//            image = InputImage.fromFilePath(this, imageuri);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
 
 
@@ -122,28 +150,85 @@ public class ScreenshotService extends Service implements ScreenshotDetectionDel
         //ML wala code
         /*--------------------------------*/
 
-        recognizer.process(image)
-                .addOnSuccessListener(
-                        new OnSuccessListener<Text>() {
-                            @Override
-                            public void onSuccess(Text texts) {
-                                text= texts.getText();
-                            }
-                        })
-                .addOnFailureListener(
-                        new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                // Task failed with an exception
-                                e.printStackTrace();
-                            }
-                        });
+//        recognizer.process(image)
+//                .addOnSuccessListener(
+//                        new OnSuccessListener<Text>() {
+//                            @Override
+//                            public void onSuccess(Text texts) {
+//                                text= texts.getText();
+//                            }
+//                        })
+//                .addOnFailureListener(
+//                        new OnFailureListener() {
+//                            @Override
+//                            public void onFailure(@NonNull Exception e) {
+//                                // Task failed with an exception
+//                                e.printStackTrace();
+//                            }
+//                        });
 
 //        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageuri);
 //        saveToInternalStorage(bitmap,fileName);
+//
+//        final HashMap<String, String> params = new HashMap<>();
+//        params.put("text", text);
+//        params.put("path", imageuri.toString());
+//
+//        String apiKey = "https://notesandroid.herokuapp.com/api/notes";
 
-        Toast.makeText(this, "text:"+text, Toast.LENGTH_LONG).show();
+//        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, apiKey, new JSONObject(params), new Response.Listener<JSONObject>() {
+//            @Override
+//            public void onResponse(JSONObject response) {
+//                try {
+//                    if(response.getBoolean("success")){
+//                        Toast.makeText(ScreenshotService.this,"Text saved successfully",Toast.LENGTH_LONG).show();
+//                    }
+////                    progressBar.setVisibility(View.GONE);
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+////                    progressBar.setVisibility(View.GONE);
+//                }
+//            }
+//        }, new Response.ErrorListener() {
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//
+//                NetworkResponse response = error.networkResponse;
+//                if(error instanceof ServerError && response !=null){
+//                    try {
+//                        String res = new String(response.data, HttpHeaderParser.parseCharset(response.headers,"utf-8"));
+//                        JSONObject object= new JSONObject(res);
+//                        Toast.makeText(ScreenshotService.this, object.getString("msg"),Toast.LENGTH_LONG).show();
+//
+////                        progressBar.setVisibility(View.GONE);
+//                    }catch (JSONException| UnsupportedEncodingException je){
+//                        je.printStackTrace();
+////                        progressBar.setVisibility(View.GONE);
+//                    }
+//                }
+//
+//            }
+//        }) {
+//            @Override
+//            public Map<String, String> getHeaders() throws AuthFailureError {
+//                HashMap<String, String> headers = new HashMap<>();
+//                headers.put("Content-Type", "application/json");
+//                headers.put("Authorization", token);
+//                return headers;
+//            }
+//        };
+//        //set retry policy
+//        final int socketTime = 3000;
+//        RetryPolicy policy = new DefaultRetryPolicy(
+//                socketTime, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+//        jsonObjectRequest.setRetryPolicy(policy);
+//
+//        //request add
+//        RequestQueue requestQueue = Volley.newRequestQueue(this);
+//        requestQueue.add(jsonObjectRequest);
 
+//        Toast.makeText(this, "text:"+text, Toast.LENGTH_LONG).show();
+//
         Intent activityIntent=new Intent(this,DialogActivity.class);
         activityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
