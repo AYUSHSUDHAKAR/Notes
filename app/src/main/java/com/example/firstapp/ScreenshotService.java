@@ -118,7 +118,7 @@ public class ScreenshotService extends Service implements ScreenshotDetectionDel
 
     @Override
     public void onScreenCaptured(final String path) throws IOException {
-        Toast.makeText(this, "Path::::"+path, Toast.LENGTH_LONG).show();
+//        Toast.makeText(this, "Path::::"+path, Toast.LENGTH_LONG).show();
         //  file ka unique name k liye
 
 //        String fileName;
@@ -136,7 +136,7 @@ public class ScreenshotService extends Service implements ScreenshotDetectionDel
 
 
         final Uri imageuri = Uri.fromFile(new File(path));
-        Toast.makeText(this, "Path==="+imageuri, Toast.LENGTH_LONG).show();
+//        Toast.makeText(this, "Path==="+imageuri, Toast.LENGTH_LONG).show();
 
         try {
             image = InputImage.fromFilePath(this, imageuri);
@@ -198,7 +198,7 @@ public class ScreenshotService extends Service implements ScreenshotDetectionDel
                     try {
                         String res = new String(response.data, HttpHeaderParser.parseCharset(response.headers,"utf-8"));
                         JSONObject object= new JSONObject(res);
-                        Toast.makeText(ScreenshotService.this, object.getString("msg"),Toast.LENGTH_LONG).show();
+                        //Toast.makeText(ScreenshotService.this, object.getString("msg"),Toast.LENGTH_LONG).show();
 
 //                        progressBar.setVisibility(View.GONE);
                     }catch (JSONException| UnsupportedEncodingException je){
@@ -227,7 +227,7 @@ public class ScreenshotService extends Service implements ScreenshotDetectionDel
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(jsonObjectRequest);
 
-        Toast.makeText(this, "text:"+text, Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, "text:"+text, Toast.LENGTH_LONG).show();
 
         Intent activityIntent=new Intent(this,DialogActivity.class);
         activityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
