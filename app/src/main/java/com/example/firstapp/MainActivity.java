@@ -5,22 +5,59 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 
 public class MainActivity extends AppCompatActivity {
-    private Button start,stop,logout;
+//    private Button start,stop,logout;
     private static final int REQUEST_CODE_READ_EXTERNAL_STORAGE_PERMISSION = 3009;
 
     SharedPreferenceClass sharedPreferenceClass;
+    SearchView searchView;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id=item.getItemId();
+
+        if(id== R.id.search){
+            Toast.makeText(getApplicationContext(),"search clicked",Toast.LENGTH_SHORT).show();
+            if(searchView.getVisibility()==View.VISIBLE){
+                searchView.setVisibility(View.GONE);
+            }else{
+                searchView.setVisibility(View.VISIBLE);
+            }
+        }else if(id== R.id.stop){
+            Toast.makeText(getApplicationContext(),"stop clicked",Toast.LENGTH_SHORT).show();
+            stopService(new Intent(MainActivity.this, ScreenshotService.class));
+        }if(id== R.id.start){
+            Toast.makeText(getApplicationContext(),"start clicked",Toast.LENGTH_SHORT).show();
+            startService(new Intent(MainActivity.this, ScreenshotService.class));
+        }if(id== R.id.logout){
+            Toast.makeText(getApplicationContext(),"logout clicked",Toast.LENGTH_SHORT).show();
+            sharedPreferenceClass.clear();
+            stopService(new Intent(MainActivity.this, ScreenshotService.class));
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            finish();
+        }
+
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,34 +66,11 @@ public class MainActivity extends AppCompatActivity {
 //
         checkReadExternalStoragePermission();
 
-
-        start = findViewById(R.id.start);
-        stop = findViewById(R.id.stop);
-        logout = findViewById(R.id.logout);
+        searchView=findViewById(R.id.search);
+        Toolbar toolbar=findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         sharedPreferenceClass = new SharedPreferenceClass(this);
 
-        start.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startService(new Intent(MainActivity.this,ScreenshotService.class));
-            }
-        });
-
-        stop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                stopService(new Intent(MainActivity.this,ScreenshotService.class));
-            }
-        });
-
-        logout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sharedPreferenceClass.clear();
-                startActivity(new Intent(MainActivity.this,LoginActivity.class));
-                finish();
-            }
-        });
     }
 
     @Override
