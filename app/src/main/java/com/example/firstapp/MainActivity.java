@@ -17,6 +17,26 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
+import com.android.volley.ServerError;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HttpHeaderParser;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class MainActivity extends AppCompatActivity {
 //    private Button start,stop,logout;
@@ -70,6 +90,78 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar=findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         sharedPreferenceClass = new SharedPreferenceClass(this);
+
+
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+
+                final HashMap<String, String> params = new HashMap<>();
+                params.put("text", query);
+
+                String apiKey = "https://notesandroid.herokuapp.com/api/notes/search";
+
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, apiKey, new JSONObject(params), new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            if(response.getBoolean("success")){
+                                Toast.makeText(MainActivity.this,"Text found"+response,Toast.LENGTH_LONG).show();
+                            }
+//                    progressBar.setVisibility(View.GONE);
+                        } catch (JSONException e) {
+                            Toast.makeText(MainActivity.this,"No text found",Toast.LENGTH_LONG).show();
+                            e.printStackTrace();
+//                    progressBar.setVisibility(View.GONE);
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        NetworkResponse response = error.networkResponse;
+                        if(error instanceof ServerError && response !=null){
+                            try {
+                                String res = new String(response.data, HttpHeaderParser.parseCharset(response.headers,"utf-8"));
+                                JSONObject object= new JSONObject(res);
+                                Toast.makeText(MainActivity.this, object.getString("msg"),Toast.LENGTH_LONG).show();
+
+//                        progressBar.setVisibility(View.GONE);
+                            }catch (JSONException| UnsupportedEncodingException je){
+                                je.printStackTrace();
+//                        progressBar.setVisibility(View.GONE);
+                            }
+                        }
+
+                    }
+                }){
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        HashMap<String, String> headers = new HashMap<>();
+                        headers.put("Content-Type", "application/json");
+                        return headers;
+                    }
+                };
+
+                final int socketTime = 3000;
+                RetryPolicy policy = new DefaultRetryPolicy(
+                        socketTime, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+                jsonObjectRequest.setRetryPolicy(policy);
+
+                //request add
+                RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+                requestQueue.add(jsonObjectRequest);
+
+
+
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
 
     }
 
