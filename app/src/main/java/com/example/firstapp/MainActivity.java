@@ -30,11 +30,14 @@ import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -44,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
 
     SharedPreferenceClass sharedPreferenceClass;
     SearchView searchView;
+
+    List<String> paths = new ArrayList<>();
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -97,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String query) {
 
+
                 final HashMap<String, String> params = new HashMap<>();
                 params.put("text", query);
 
@@ -105,15 +111,17 @@ public class MainActivity extends AppCompatActivity {
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, apiKey, new JSONObject(params), new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        try {
-                            if(response.getBoolean("success")){
-                                Toast.makeText(MainActivity.this,"Text found"+response,Toast.LENGTH_LONG).show();
+                        try{
+                            JSONArray jsonArray = response.getJSONArray("result");
+                            for(int i = 0; i < jsonArray.length(); i++){
+                                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                                String path = jsonObject.getString("path");
+
+                                paths.add(path);
                             }
-//                    progressBar.setVisibility(View.GONE);
-                        } catch (JSONException e) {
-                            Toast.makeText(MainActivity.this,"No text found",Toast.LENGTH_LONG).show();
-                            e.printStackTrace();
-//                    progressBar.setVisibility(View.GONE);
+                            Toast.makeText(MainActivity.this,"Result"+ paths.get(0),Toast.LENGTH_LONG).show();
+                        }catch (JSONException e){
+                            Toast.makeText(MainActivity.this,"No Text Found"+e,Toast.LENGTH_LONG).show();
                         }
                     }
                 }, new Response.ErrorListener() {
