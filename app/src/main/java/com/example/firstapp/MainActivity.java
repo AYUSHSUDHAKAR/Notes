@@ -4,10 +4,12 @@ package com.example.firstapp;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -47,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
 
     SharedPreferenceClass sharedPreferenceClass;
     SearchView searchView;
+    RequestQueue requestQueue;
+    ImageView imageView;
 
     List<String> paths = new ArrayList<>();
 
@@ -91,35 +95,45 @@ public class MainActivity extends AppCompatActivity {
 //
         checkReadExternalStoragePermission();
 
+        imageView=findViewById(R.id.imageview);
         searchView=findViewById(R.id.search);
         Toolbar toolbar=findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         sharedPreferenceClass = new SharedPreferenceClass(this);
 
-
+        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(String query) {
+            public boolean onQueryTextSubmit(final String query) {
 
 
                 final HashMap<String, String> params = new HashMap<>();
                 params.put("text", query);
 
-                String apiKey = "https://notesandroid.herokuapp.com/api/notes/search";
+                final JSONObject parameters = new JSONObject(params);
 
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, apiKey, new JSONObject(params), new Response.Listener<JSONObject>() {
+
+
+                String apiKey = "https://notesandroid.herokuapp.com/api/notes/search";
+                RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, apiKey, new JSONObject(params), new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
+                        Toast.makeText(MainActivity.this,"Result  ++"+response.toString(),Toast.LENGTH_LONG).show();
                         try{
                             JSONArray jsonArray = response.getJSONArray("result");
+                            int length = jsonArray.length();
                             for(int i = 0; i < jsonArray.length(); i++){
                                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                                 String path = jsonObject.getString("path");
 
                                 paths.add(path);
                             }
-                            Toast.makeText(MainActivity.this,"Result"+ paths.get(0),Toast.LENGTH_LONG).show();
+//                            Uri imageUri = Uri.parse(paths.get(0));
+//                            imageView.setImageURI(imageUri);
+                            Toast.makeText(MainActivity.this,"Result  "+paths,Toast.LENGTH_LONG).show();
                         }catch (JSONException e){
                             Toast.makeText(MainActivity.this,"No Text Found"+e,Toast.LENGTH_LONG).show();
                         }
@@ -147,17 +161,18 @@ public class MainActivity extends AppCompatActivity {
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         HashMap<String, String> headers = new HashMap<>();
                         headers.put("Content-Type", "application/json");
+//                        headers.put("text", query);
                         return headers;
                     }
                 };
 
-                final int socketTime = 3000;
-                RetryPolicy policy = new DefaultRetryPolicy(
-                        socketTime, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
-                jsonObjectRequest.setRetryPolicy(policy);
+//                final int socketTime = 9000;
+//                RetryPolicy policy = new DefaultRetryPolicy(
+//                        socketTime, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+//                jsonObjectRequest.setRetryPolicy(policy);
 
                 //request add
-                RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+
                 requestQueue.add(jsonObjectRequest);
 
 
