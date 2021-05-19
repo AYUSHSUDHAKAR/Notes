@@ -135,97 +135,97 @@ public class ScreenshotService extends Service implements ScreenshotDetectionDel
 
 
 
-        final Uri imageuri = Uri.fromFile(new File(path));
-//        Toast.makeText(this, "Path==="+imageuri, Toast.LENGTH_LONG).show();
-
-        try {
-            image = InputImage.fromFilePath(this, imageuri);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-
-        /*--------------------------------*/
-        //ML wala code
-        /*--------------------------------*/
-
-        recognizer.process(image)
-                .addOnSuccessListener(
-                        new OnSuccessListener<Text>() {
-                            @Override
-                            public void onSuccess(Text texts) {
-                                text= texts.getText();
-                            }
-                        })
-                .addOnFailureListener(
-                        new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                // Task failed with an exception
-                                e.printStackTrace();
-                            }
-                        });
-
-        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageuri);
-//        saveToInternalStorage(bitmap,fileName);
-
-        final HashMap<String, String> params = new HashMap<>();
-        params.put("text", text);
-        params.put("path", imageuri.toString());
-
-        String apiKey = "https://notesandroid.herokuapp.com/api/notes";
-
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, apiKey, new JSONObject(params), new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    if(response.getBoolean("success")){
-                        Toast.makeText(ScreenshotService.this,"Text saved successfully",Toast.LENGTH_LONG).show();
-                    }
-//                    progressBar.setVisibility(View.GONE);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-//                    progressBar.setVisibility(View.GONE);
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-                NetworkResponse response = error.networkResponse;
-                if(error instanceof ServerError && response !=null){
-                    try {
-                        String res = new String(response.data, HttpHeaderParser.parseCharset(response.headers,"utf-8"));
-                        JSONObject object= new JSONObject(res);
-                        //Toast.makeText(ScreenshotService.this, object.getString("msg"),Toast.LENGTH_LONG).show();
-
-//                        progressBar.setVisibility(View.GONE);
-                    }catch (JSONException| UnsupportedEncodingException je){
-                        je.printStackTrace();
-//                        progressBar.setVisibility(View.GONE);
-                    }
-                }
-
-            }
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> headers = new HashMap<>();
-                headers.put("Content-Type", "application/json");
-                headers.put("Authorization", token);
-                return headers;
-            }
-        };
-        //set retry policy
-        final int socketTime = 3000;
-        RetryPolicy policy = new DefaultRetryPolicy(
-                socketTime, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
-        jsonObjectRequest.setRetryPolicy(policy);
-
-        //request add
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        requestQueue.add(jsonObjectRequest);
+//        final Uri imageuri = Uri.fromFile(new File(path));
+////        Toast.makeText(this, "Path==="+imageuri, Toast.LENGTH_LONG).show();
+//
+//        try {
+//            image = InputImage.fromFilePath(this, imageuri);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//
+//
+//        /*--------------------------------*/
+//        //ML wala code
+//        /*--------------------------------*/
+//
+//        recognizer.process(image)
+//                .addOnSuccessListener(
+//                        new OnSuccessListener<Text>() {
+//                            @Override
+//                            public void onSuccess(Text texts) {
+//                                text= texts.getText();
+//                            }
+//                        })
+//                .addOnFailureListener(
+//                        new OnFailureListener() {
+//                            @Override
+//                            public void onFailure(@NonNull Exception e) {
+//                                // Task failed with an exception
+//                                e.printStackTrace();
+//                            }
+//                        });
+//
+//        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageuri);
+////        saveToInternalStorage(bitmap,fileName);
+//
+//        final HashMap<String, String> params = new HashMap<>();
+//        params.put("text", text);
+//        params.put("path", imageuri.toString());
+//
+//        String apiKey = "https://notesandroid.herokuapp.com/api/notes";
+//
+//        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, apiKey, new JSONObject(params), new Response.Listener<JSONObject>() {
+//            @Override
+//            public void onResponse(JSONObject response) {
+//                try {
+//                    if(response.getBoolean("success")){
+//                        Toast.makeText(ScreenshotService.this,"Text saved successfully",Toast.LENGTH_LONG).show();
+//                    }
+////                    progressBar.setVisibility(View.GONE);
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+////                    progressBar.setVisibility(View.GONE);
+//                }
+//            }
+//        }, new Response.ErrorListener() {
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//
+//                NetworkResponse response = error.networkResponse;
+//                if(error instanceof ServerError && response !=null){
+//                    try {
+//                        String res = new String(response.data, HttpHeaderParser.parseCharset(response.headers,"utf-8"));
+//                        JSONObject object= new JSONObject(res);
+//                        //Toast.makeText(ScreenshotService.this, object.getString("msg"),Toast.LENGTH_LONG).show();
+//
+////                        progressBar.setVisibility(View.GONE);
+//                    }catch (JSONException| UnsupportedEncodingException je){
+//                        je.printStackTrace();
+////                        progressBar.setVisibility(View.GONE);
+//                    }
+//                }
+//
+//            }
+//        }) {
+//            @Override
+//            public Map<String, String> getHeaders() throws AuthFailureError {
+//                HashMap<String, String> headers = new HashMap<>();
+//                headers.put("Content-Type", "application/json");
+//                headers.put("Authorization", token);
+//                return headers;
+//            }
+//        };
+//        //set retry policy
+//        final int socketTime = 3000;
+//        RetryPolicy policy = new DefaultRetryPolicy(
+//                socketTime, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+//        jsonObjectRequest.setRetryPolicy(policy);
+//
+//        //request add
+//        RequestQueue requestQueue = Volley.newRequestQueue(this);
+//        requestQueue.add(jsonObjectRequest);
 
         //Toast.makeText(this, "text:"+text, Toast.LENGTH_LONG).show();
 

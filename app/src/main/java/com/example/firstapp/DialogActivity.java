@@ -133,6 +133,7 @@ public class DialogActivity extends AppCompatActivity {
                                 @Override
                                 public void onSuccess(Text texts) {
                                     text= texts.getText();
+                                    Toast.makeText(getBaseContext(), "text:"+text, Toast.LENGTH_LONG).show();
                                 }
                             })
                     .addOnFailureListener(
@@ -145,13 +146,13 @@ public class DialogActivity extends AppCompatActivity {
                             });
 
 
-            Toast.makeText(getBaseContext(), "text:"+text, Toast.LENGTH_LONG).show();
+
 
         }
     }
 
     private void uploadText(){
-        Toast.makeText(getBaseContext(),"upload called"+token,Toast.LENGTH_LONG).show();
+        Toast.makeText(getBaseContext(),"upload called",Toast.LENGTH_LONG).show();
         final HashMap<String, String> params = new HashMap<>();
         params.put("text", text);
         params.put("path", imageuri.toString());
