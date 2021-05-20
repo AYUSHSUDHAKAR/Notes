@@ -2,17 +2,43 @@ package com.example.firstapp;
 
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.IntentSender;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.database.DatabaseErrorHandler;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.UserHandle;
+import android.provider.MediaStore;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
@@ -36,6 +62,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,8 +83,9 @@ public class MainActivity extends AppCompatActivity {
     SearchView searchView;
     RequestQueue requestQueue;
     ImageView imageView;
+    GridView imgListView;
 
-    List<String> paths = new ArrayList<>();
+    ArrayList<HashMap<String,JSONObject>> paths = new ArrayList<>();
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -94,8 +127,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 //
         checkReadExternalStoragePermission();
-
-        imageView=findViewById(R.id.imageview);
+        imgListView = findViewById(R.id.imgListView);
         searchView=findViewById(R.id.search);
         Toolbar toolbar=findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -117,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
 
                 String apiKey = "https://notesandroid.herokuapp.com/api/notes/search";
                 RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+                paths.clear();
 
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, apiKey, new JSONObject(params), new Response.Listener<JSONObject>() {
                     @Override
@@ -128,11 +161,41 @@ public class MainActivity extends AppCompatActivity {
                             for(int i = 0; i < jsonArray.length(); i++){
                                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                                 String path = jsonObject.getString("path");
+                                HashMap paa = new HashMap();
+                                paa.put("path", path);
 
-                                paths.add(path);
+                                paths.add(paa);
                             }
-//                            Uri imageUri = Uri.parse(paths.get(0));
-//                            imageView.setImageURI(imageUri);
+
+                            try
+                            {
+                                String[] from= {"path"};
+                                int [] to= {R.id.imageView};
+                                SimpleAdapter listAdapter = new SimpleAdapter(getApplicationContext(), paths, R.layout.list_view_items, from, to);
+                                /* implements ViewBinder() interface*/
+                                listAdapter.setViewBinder(new SimpleAdapter.ViewBinder() {
+                                    @Override
+                                    public boolean setViewValue(View view, Object data,
+                                                                String textRepresentation) {
+                                        // TODO Auto-generated method stub
+                                        if(view instanceof ImageView && data instanceof Bitmap){
+                                            ImageView i = (ImageView)view;
+                                            i.setImageBitmap((Bitmap) data);
+                                            return true;
+                                        }
+                                        return false;
+                                    }
+                                });
+                                imgListView.setAdapter(listAdapter);
+                                /* Dynamic with new ListView*/
+                                listAdapter.notifyDataSetChanged();
+
+                            }
+                            catch (Exception e)
+                            {
+                                //handle exception
+                            }
+
                             Toast.makeText(MainActivity.this,"Result  "+paths,Toast.LENGTH_LONG).show();
                         }catch (JSONException e){
                             Toast.makeText(MainActivity.this,"No Text Found"+e,Toast.LENGTH_LONG).show();
